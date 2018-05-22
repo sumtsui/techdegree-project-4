@@ -1,20 +1,31 @@
-(function() {
+// (function() {
 
 const startDiv = document.querySelector('#start');
-const startBtn = startDiv.querySelector('a.button');
+const startBtn = startDiv.querySelector('#startBtn');
+const p1NameInput = startDiv.querySelector('#p1-name');
+const p2NameInput = startDiv.querySelector('#p2-name');
 const player1Li = document.querySelector('#player1');
 const player2Li = document.querySelector('#player2');
 const board = document.querySelector('ul.boxes');
 const tiles = board.children;
 const endDiv = document.querySelector('#finish-screen');
 
-startGame();
+let p1Name = '';
+let p2Name = '';
 
 class Player {
 	constructor(role) {
 		this.role = role;
 		this.tiles = [];
 		this.turn = false;
+	}
+
+	set name(name) {
+		if (name !== '') this._name = name;
+	}
+
+	get name() {
+		return this._name;
 	}
 
 	play(index) {
@@ -97,7 +108,7 @@ class Game {
 				break;
 			default:
 				re = 'screen-win-tie';
-				str = '';
+				str = 'Tie';
 		}
 		let html = `<div class="screen screen-win ${re}" id="finish">`;
 		html += `<header><h1>Tic Tac Toe</h1>`;
@@ -109,14 +120,16 @@ class Game {
 	}
 }
 
+startGame();
 let player1 = new Player('o');
 let player2 = new Player('x');
 let game = new Game([player1, player2]);
+player1.name = p1Name;
+player2.name = p2Name;
 
 board.addEventListener('click', (event) => {
 	if (event.target.tagName === 'LI') {
 		let tileNum = parseInt(event.target.classList[1]);
-		console.log(game.board);
 		if (player1.turn && game.board.includes(tileNum)) {
 			event.target.classList.add('box-filled-1');
 			game.makeMove(tileNum);
@@ -173,11 +186,13 @@ board.addEventListener('mouseout', () => {
 function startGame() {
 	hide(player1Li);
 	hide(player2Li);
-	startBtn.addEventListener('click', () => { 
+	startBtn.addEventListener('click', (event) => { 
 		hide(startDiv);
 		show(player1Li);
 		show(player2Li);
 		player1Li.classList.add('active');
+		p1Name = p1NameInput.value;
+		p2Name = p2NameInput.value;
 	});
 }
 
@@ -203,4 +218,4 @@ function resetUI() {
 function show(node) { node.style.display = 'block'; }
 function hide(node) { node.style.display = 'none'; }
 
-}());
+// }());

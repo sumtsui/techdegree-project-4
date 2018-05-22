@@ -37,7 +37,7 @@ h1 {
   height: 100%; }
   .screen header {
     position: relative;
-    top: 50%;
+    top: 40%;
     -webkit-transform: translatey(-50%);
     transform: translatey(-50%); }
   .screen h1 {
@@ -137,5 +137,35 @@ h1 {
     .boxes .box-filled-2 {
       background-color: #3688C3;
       background-image: url(../img/x.svg); }
+
+
+#playerNames {
+  margin-top: 2em;
+}
+
+#start label {
+  color: white;
+  width: 45%;
+  display: block;
+  float: left;
+  clear: left;
+  text-align: right;
+  margin: 0 auto;
+  padding-top: .5em;
+}
+
+#start input {
+  color: black;
+  border-radius: 4px;
+  border: 2px solid lightgray;
+  padding: .4em .6em;
+  width: 8em;
+  margin-left: 1.4em;
+  display: block;
+  float: left;
+  margin-bottom: 1em;
+}
+
+
 
 
