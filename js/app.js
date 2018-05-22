@@ -8,15 +8,6 @@ const board = document.querySelector('ul.boxes');
 const tiles = board.children;
 const endDiv = document.querySelector('#finish-screen');
 
-function startGame() {
-	hide(player1Li);
-	hide(player2Li);
-	startBtn.addEventListener('click', () => { 
-		hide(startDiv);
-		show(player1Li);
-		show(player2Li);
-	});
-}
 startGame();
 
 class Player {
@@ -29,7 +20,6 @@ class Player {
 	play(index) {
 		this.tiles.push(index);
 	}
-
 }
 
 class Game {
@@ -123,10 +113,6 @@ let player1 = new Player('o');
 let player2 = new Player('x');
 let game = new Game([player1, player2]);
 
-window.addEventListener('load', () => {
-	player1Li.classList.add('active');
-});
-
 board.addEventListener('click', (event) => {
 	if (event.target.tagName === 'LI') {
 		let tileNum = parseInt(event.target.classList[1]);
@@ -183,6 +169,17 @@ board.addEventListener('mouseout', () => {
 		}
 	}
 });
+
+function startGame() {
+	hide(player1Li);
+	hide(player2Li);
+	startBtn.addEventListener('click', () => { 
+		hide(startDiv);
+		show(player1Li);
+		show(player2Li);
+		player1Li.classList.add('active');
+	});
+}
 
 function resetUI() {
 	show(player1Li);
