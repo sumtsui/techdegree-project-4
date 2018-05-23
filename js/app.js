@@ -1,4 +1,4 @@
-(function() {
+// (function() {
 
 const startDiv = document.querySelector('#start');
 const startBtn = startDiv.querySelector('#startBtn');
@@ -7,106 +7,26 @@ const p2NameInput = startDiv.querySelector('#p2-name');
 const p1Li = document.querySelector('#player1');
 const p2Li = document.querySelector('#player2');
 const board = document.querySelector('ul.boxes');
-const tiles = board.children;
+const tiles = document.querySelectorAll('.box');
 const endDiv = document.querySelector('#finish-screen');
 
-class Player {
-	constructor(role, turn) {
-		this.role = role;
-		this.turn = turn;
-		this.tiles = [];
-	}
+let p1 = new Player('player1', true);
+let p2 = new Player('player2', false);
+let game = new Game([p1, p2]);
 
-	set name(name) { if (name !== '') this._name = name; }
+start();
+board.addEventListener('click', (event) => {
+	play(event);
+	result();
+	end();
+});
+board.addEventListener('mouseover', hoverHandler);
+board.addEventListener('mouseout', hoverHandler);
 
-	get name() { return this._name; }
-
-	play(index) { this.tiles.push(index); }
-}
-
-class Game {
-	constructor(players) {
-		this.board = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-		this.players = players;
-		this.winPattern = [
-			[1, 2, 3],
-			[1, 4, 7],
-			[3, 6, 9],
-			[4, 5, 6],
-			[7, 8, 9],
-			[2, 5, 8],
-			[1, 5, 9],
-			[3, 5, 7]
-		];
-	}
-
-	switch() {
-		let cp = this.getCurrentP();
-		let rp = this.getRestingP();
-		cp.turn = false;
-		rp.turn = true;
-	}
-
-	makeMove(tile) {
-		if (this.board.includes(tile)) {
-			this.board.splice(this.board.indexOf(tile), 1);
-			this.getCurrentP().play(tile);
-		}
-	}
-
-	win(player) {
-		let result = false;
-		this.winPattern.forEach(pattern => {
-			if (this.arrayContainsArray(player.tiles, pattern)) { result = true; }
-		});
-		return result;
-	}
-
-	getWinner() { return this.players.filter(player => this.win(player))[0]; }
-
-	finish() { return (this.board.length < 1); }
-
-	arrayContainsArray(superset, subset) {
-	  if (0 === subset.length) {
-	    return false;
-	  }
-	  return subset.every(function (value) {
-	    return (superset.indexOf(value) >= 0);
-	  });
-	}
-
-	getCurrentP() { return this.players.filter(p => p.turn === true)[0]; }
-
-	getRestingP() { return this.players.filter(p => p.turn === false)[0];	}
-
-	renderResult(result) {
-		let re = '';
-		let str = 'Winner';
-		switch (result) {
-			case 'player1':
-				re = 'screen-win-one';
-				break;
-			case 'player2':
-				re = 'screen-win-two';
-				break;
-			default:
-				re = 'screen-win-tie';
-				str = 'Tie';
-		}
-		let html = `<div class="screen screen-win ${re}" id="finish">`;
-		html += `<header><h1>Tic Tac Toe</h1>`;
-		html += `<p class="message">${str}</p><a href="#" class="button">New game</a>`;
-		html += `</header></div>`;
-		document.querySelector('#finish-screen').innerHTML = html;
-		hide(p1Li);
-		hide(p2Li);
-	}
-}
-
-function startGame() {
+function start() {
 	hide(p1Li);
 	hide(p2Li);
-	startBtn.addEventListener('click', (event) => { 
+	startBtn.addEventListener('click', () => { 
 		hide(startDiv);
 		show(p1Li);
 		show(p2Li);
@@ -122,73 +42,51 @@ function startGame() {
 	});
 }
 
-let p1 = new Player('player1', true);
-let p2 = new Player('player2', false);
-let game = new Game([p1, p2]);
-startGame();
-
-board.addEventListener('click', (event) => {
-	// when player click a tile
-	if (event.target.tagName === 'LI') {
+function play(e) {
+	if (e.target.tagName === 'LI') {
 		// get the tile number
-		let tileNum = parseInt(event.target.classList[1]);
-		// if it is player 1's turn and tile haven't been taken
-		if (p1.turn && game.board.includes(tileNum)) {
-			event.target.classList.add('box-filled-1');
+		let tileNum = parseInt(e.target.classList[1]);
+		// if the tile is available
+		if (game.board.includes(tileNum)) {
+			let num = game.players.indexOf(game.getCurrentP()) + 1;
+			e.target.classList.add(`box-filled-${num}`);
 			game.makeMove(tileNum);
 			game.switch();
-		}
-		// if it is player 2's turn and tile haven't been taken
-		if (p2.turn && game.board.includes(tileNum)) {
-			event.target.classList.add('box-filled-2');
-			game.makeMove(tileNum);
-			game.switch();	
+			// toggle 'active' class on players' Li elements
+			document.querySelector(`#${game.getCurrentP().role}`).classList.toggle('active');
+			document.querySelector(`#${game.getRestingP().role}`).classList.toggle('active');
 		}
 	}
-	// get current player and add 'active' class to its Li element.
-	document.querySelector(`#${game.getCurrentP().role}`).classList.toggle('active');
-	// get resting player and remove 'active' class from its Li element.
-	document.querySelector(`#${game.getRestingP().role}`).classList.toggle('active');
+}
 
-	// when there is a winner 
-	if (game.getWinner() !== undefined) {
-		game.renderResult(game.getWinner().role);
-	} else if (game.finish()) {
-		game.renderResult();
-	}
+function result() {
+	if (game.getWinner() !== undefined) renderResult(game.getWinner());
+	else if (game.finish()) renderResult();
+}
 
-	// when End Game Screen shows up 
+function end() {
 	if (endDiv.childElementCount > 0) {
 		document.querySelector('#finish .button').addEventListener('click', () => {
 			// create new players and new game, and reset the UI
 			p1 = new Player('player1', true);
 			p2 = new Player('player2', false);
+			p1.name = p1NameInput.value.substring(0, 6);
+			p2.name = p2NameInput.value.substring(0, 6);
 			game = new Game([p1, p2]);
 			resetUI();
 		});
-	} 
-});
-
-board.addEventListener('mouseover', () => {
-	if (event.target.tagName === 'LI') {
-		let tileNum = parseInt(event.target.classList[1]);
-		if (p1.turn && !p2.tiles.includes(tileNum)) {
-			event.target.style.backgroundImage = 'url("img/o.svg")';
-		}
-		if (p2.turn && !p1.tiles.includes(tileNum)) {
-			event.target.style.backgroundImage = 'url("img/x.svg")';
-		}
 	}
-});
+}
 
-board.addEventListener('mouseout', () => {
-	if (event.target.tagName === 'LI') {
-		let tileNum = parseInt(event.target.classList[1]);
-		if (!p1.tiles.includes(tileNum) && !p2.tiles.includes(tileNum)) {
-			event.target.style.backgroundImage = 'none';
-		}
+function hoverHandler(e) {
+	if (e.target.tagName === 'LI') {
+		let tile = e.target;
+		let tileNum = parseInt(tile.classList[1]);
+		let icon = `url("${game.getCurrentP().getIcon()}")`;
+		if (game.board.includes(tileNum)) 
+			tile.style.backgroundImage = (tile.style.backgroundImage === icon) ? 'none' : icon;
 	}
-});
+}
 
 function resetUI() {
 	show(p1Li);
@@ -200,9 +98,39 @@ function resetUI() {
 		tiles[i].className = `box ${i+1}`;
 		tiles[i].style.backgroundImage = 'none';
 	}
+	// tiles.forEach(tile => {
+	// 	tile.className = `box`;
+	// 	tile.style.backgroundImage = 'none';
+	// });
+}
+
+function renderResult(winner) {
+	let re = (winner !== undefined) ? winner.role : 'tie';
+	let c = '';
+	let str = 'Winner';
+	switch (re) {
+		case 'player1':
+			c = 'screen-win-one';
+			if (winner.name !== undefined) str += `<br>${winner.name}`;
+			break;
+		case 'player2':
+			c = 'screen-win-two';
+			if (winner.name !== undefined) str += `<br>${winner.name}`;
+			break;
+		default:
+			c = 'screen-win-tie';
+			str = 'Tie';
+	}
+	let html = `<div class="screen screen-win ${c}" id="finish">`;
+	html += `<header><h1>Tic Tac Toe</h1>`;
+	html += `<p class="message">${str}</p><a href="#" class="button">New game</a>`;
+	html += `</header></div>`;
+	document.querySelector('#finish-screen').innerHTML = html;
+	hide(p1Li);
+	hide(p2Li);
 }
 
 function show(node) { node.style.display = 'block'; }
 function hide(node) { node.style.display = 'none'; }
 
-}());
+// }());
