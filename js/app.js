@@ -9,6 +9,8 @@ const p2Li = document.querySelector('#player2');
 const board = document.querySelector('ul.boxes');
 const tiles = document.querySelectorAll('.box');
 const endDiv = document.querySelector('#finish-screen');
+const toggleAI = document.querySelector('.toggle-menu input');
+let AIenabled = false;
 
 let p1 = new Player('player1', true);
 let p2 = new Player('player2', false);
@@ -18,7 +20,7 @@ start();
 
 board.addEventListener('click', (event) => {
 	play(event);
-	AIplay();
+	if (AIenabled) AIplay();
 	result();
 	end();
 });
@@ -148,5 +150,14 @@ function renderResult(winner) {
 
 function show(node) { node.style.display = 'block'; }
 function hide(node) { node.style.display = 'none'; }
+
+toggleAI.addEventListener('change', (event) => {
+	if (event.target.checked) {
+		AIenabled = true;
+		p2NameInput.value = 'Ultron';
+	} else {
+		p2NameInput.value = '';
+	}
+});
 
 // }());
