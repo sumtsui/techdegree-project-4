@@ -228,11 +228,11 @@ li.players span {
 }
 
 .toggle-menu input:checked + .slider {
-  background-color: #4ba6c3;
+  background-color: orange;
 }
 
 .toggle-menu input:focus + .slider {
-  box-shadow: 0 0 1px #4ba6c3;
+  box-shadow: 0 0 1px orange;
 }
 
 .toggle-menu input:checked + .slider:before {
