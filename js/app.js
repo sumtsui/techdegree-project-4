@@ -15,13 +15,13 @@ let p2 = new Player('player2', false);
 let game = new Game([p1, p2]);
 
 start();
+
 board.addEventListener('click', (event) => {
 	play(event);
+	AIplay();
 	result();
 	end();
 });
-board.addEventListener('mouseover', hoverHandler);
-board.addEventListener('mouseout', hoverHandler);
 
 function start() {
 	hide(p1Li);
@@ -59,6 +59,18 @@ function play(e) {
 	}
 }
 
+function AIplay() {
+	let i = Math.floor(Math.random() * game.board.length);	// random index in game.board
+	if (game.board.includes(game.board[i])) {
+		let num = game.players.indexOf(game.getCurrentP()) + 1; 
+		tiles[game.board[i]-1].classList.add(`box-filled-${num}`);
+		game.makeMove(game.board[i]);
+		game.switch();
+		document.querySelector(`#${game.getCurrentP().role}`).classList.toggle('active');
+		document.querySelector(`#${game.getRestingP().role}`).classList.toggle('active');
+	}
+}
+
 function result() {
 	if (game.getWinner() !== undefined) renderResult(game.getWinner());
 	else if (game.finish()) renderResult();
@@ -78,13 +90,21 @@ function end() {
 	}
 }
 
+board.addEventListener('mouseover', hoverHandler);
+board.addEventListener('mouseout', hoverHandler);
+
 function hoverHandler(e) {
 	if (e.target.tagName === 'LI') {
 		let tile = e.target;
 		let tileNum = parseInt(tile.classList[1]);
 		let icon = `url("${game.getCurrentP().getIcon()}")`;
-		if (game.board.includes(tileNum)) 
-			tile.style.backgroundImage = (tile.style.backgroundImage === icon) ? 'none' : icon;
+		if (game.board.includes(tileNum)) {
+			if (tile.style.backgroundImage === icon) {
+				tile.removeAttribute('style');
+			} else {
+				tile.style.backgroundImage = icon;
+			}
+		}
 	}
 }
 
@@ -96,12 +116,8 @@ function resetUI() {
 	document.querySelector(`#${game.getRestingP().role}`).classList.remove('active');
 	for (let i = 0; i < tiles.length; i++) {
 		tiles[i].className = `box ${i+1}`;
-		tiles[i].style.backgroundImage = 'none';
+		tiles[i].removeAttribute('style');
 	}
-	// tiles.forEach(tile => {
-	// 	tile.className = `box`;
-	// 	tile.style.backgroundImage = 'none';
-	// });
 }
 
 function renderResult(winner) {
