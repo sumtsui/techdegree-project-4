@@ -1,4 +1,4 @@
-// (function() {
+(function() {
 
 const startDiv = document.querySelector('#start');
 const startBtn = startDiv.querySelector('#startBtn');
@@ -10,7 +10,7 @@ const board = document.querySelector('ul.boxes');
 const tiles = document.querySelectorAll('.box');
 const endDiv = document.querySelector('#finish-screen');
 const toggleAI = document.querySelector('.toggle-menu input');
-let AIenabled = false;
+let AIEnabled = false;
 
 let p1 = new Player('player1', true);
 let p2 = new Player('player2', false);
@@ -20,7 +20,7 @@ start();
 
 board.addEventListener('click', (event) => {
 	play(event);
-	if (AIenabled) AIplay();
+	if (AIEnabled) AIplay();
 	result();
 	end();
 });
@@ -153,11 +153,12 @@ function hide(node) { node.style.display = 'none'; }
 
 toggleAI.addEventListener('change', (event) => {
 	if (event.target.checked) {
-		AIenabled = true;
+		AIEnabled = true;
 		p2NameInput.value = 'Ultron';
 	} else {
+		AIEnabled = false;
 		p2NameInput.value = '';
 	}
 });
 
-// }());
+}());
