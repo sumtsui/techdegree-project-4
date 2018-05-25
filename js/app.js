@@ -1,4 +1,4 @@
-(function() {
+// (function() {
 
 const startDiv = document.querySelector('#start');
 const startBtn = startDiv.querySelector('#startBtn');
@@ -12,82 +12,82 @@ const endDiv = document.querySelector('#finish-screen');
 const toggleAI = document.querySelector('.toggle-menu input');
 let AIEnabled = false;
 
-let p1 = new Player('player1', true);
-let p2 = new Player('player2', false);
-let game = new Game([p1, p2]);
+let p1;
+let p2;
+let game;
 
-start();
+hide(p1Li);
+hide(p2Li);
 
 board.addEventListener('click', (event) => {
-	play(event);
-	if (AIEnabled) AIplay();
-	result();
-	end();
+	if (!game.getCurrentP().ai) play(event);
+	if (game.getCurrentP().ai) play();
+	showResult();
+	showEndScreen();
 });
 
-function start() {
-	hide(p1Li);
-	hide(p2Li);
-	startBtn.addEventListener('click', () => { 
-		hide(startDiv);
-		show(p1Li);
-		show(p2Li);
-		p1Li.classList.add('active');
-		p1.name = p1NameInput.value.substring(0, 6);
-		p2.name = p2NameInput.value.substring(0, 6);
-		// if player has name, add name to player Li element
-		game.players.filter(p => p.name !== undefined).forEach(p => {
-			let span = document.createElement('span');
-			span.textContent = p.name;
-			document.querySelector(`#${p.role}`).append(span);	
-		});
+toggleAI.addEventListener('change', (event) => {
+	if (event.target.checked) {
+		AIEnabled = true;
+		p2NameInput.value = 'Ultron';
+	} else {
+		AIEnabled = false;
+		p2NameInput.value = '';
+	}
+});
+
+startBtn.addEventListener('click', () => {
+	p1 = new Player('player1', true);
+	p2 = (AIEnabled) ? new AIplayer('player2', false, p1) : new Player('player2', false);
+	p1.playFirst = p1.turn;
+	p2.playFirst = p2.turn;
+	game = new Game([p1, p2]);
+
+	hide(startDiv);
+	show(p1Li);
+	show(p2Li);
+	p1Li.classList.add('active');
+	p1.name = p1NameInput.value.substring(0, 6);
+	p2.name = p2NameInput.value.substring(0, 6);
+	game.players.filter(p => p.name !== undefined).forEach(p => {
+		let span = document.createElement('span');
+		span.textContent = p.name;
+		document.querySelector(`#${p.role}`).append(span);	
 	});
-}
+});
 
-function play(e) {
-	if (e.target.tagName === 'LI') {
-		// get the tile number
-		let tileNum = parseInt(e.target.classList[1]);
-		// if the tile is available
-		if (game.board.includes(tileNum)) {
-			let num = game.players.indexOf(game.getCurrentP()) + 1;
-			e.target.classList.add(`box-filled-${num}`);
-			game.makeMove(tileNum);
-			game.switch();
-			// toggle 'active' class on players' Li elements
-			document.querySelector(`#${game.getCurrentP().role}`).classList.toggle('active');
-			document.querySelector(`#${game.getRestingP().role}`).classList.toggle('active');
-		}
-	}
-}
-
-function AIplay() {
-	let i = Math.floor(Math.random() * game.board.length);	// random index in game.board
-	if (game.board.includes(game.board[i])) {
-		let num = game.players.indexOf(game.getCurrentP()) + 1; 
-		tiles[game.board[i]-1].classList.add(`box-filled-${num}`);
-		game.makeMove(game.board[i]);
+function play(e = undefined) {
+	let tile = game.getCurrentP().getTile(e);
+	if (game.board.includes(tile)) {
+		tiles[tile - 1].classList.add(`${game.getCurrentP().getTileClass()}`);
+		game.makeMove(tile);
 		game.switch();
-		document.querySelector(`#${game.getCurrentP().role}`).classList.toggle('active');
-		document.querySelector(`#${game.getRestingP().role}`).classList.toggle('active');
+		toggleActive();
 	}
 }
 
-function result() {
+function toggleActive() {
+	document.querySelector(`#${game.getCurrentP().role}`).classList.toggle('active');
+	document.querySelector(`#${game.getRestingP().role}`).classList.toggle('active');
+}
+
+function showResult() {
 	if (game.getWinner() !== undefined) renderResult(game.getWinner());
 	else if (game.finish()) renderResult();
 }
 
-function end() {
+function showEndScreen() {
 	if (endDiv.childElementCount > 0) {
 		document.querySelector('#finish .button').addEventListener('click', () => {
-			// create new players and new game, and reset the UI
-			p1 = new Player('player1', true);
-			p2 = new Player('player2', false);
-			p1.name = p1NameInput.value.substring(0, 6);
-			p2.name = p2NameInput.value.substring(0, 6);
+			p1.tiles = [];
+			p2.tiles = [];
+			p1.turn = p2.playFirst;
+			p2.turn = p1.playFirst;
+			p1.playFirst = p1.turn;
+			p2.playFirst = p2.turn;
 			game = new Game([p1, p2]);
 			resetUI();
+			if (game.getCurrentP().ai) play();
 		});
 	}
 }
@@ -151,14 +151,4 @@ function renderResult(winner) {
 function show(node) { node.style.display = 'block'; }
 function hide(node) { node.style.display = 'none'; }
 
-toggleAI.addEventListener('change', (event) => {
-	if (event.target.checked) {
-		AIEnabled = true;
-		p2NameInput.value = 'Ultron';
-	} else {
-		AIEnabled = false;
-		p2NameInput.value = '';
-	}
-});
-
-}());
+// }());

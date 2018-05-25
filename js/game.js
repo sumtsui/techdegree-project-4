@@ -24,7 +24,7 @@ class Game {
 	makeMove(tile) {
 		if (this.board.includes(tile)) {
 			this.board.splice(this.board.indexOf(tile), 1);
-			this.getCurrentP().play(tile);
+			this.getCurrentP().addTile(tile);
 		}
 	}
 
