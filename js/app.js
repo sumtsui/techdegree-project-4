@@ -19,12 +19,47 @@ let game;
 hide(p1Li);
 hide(p2Li);
 
-board.addEventListener('click', (event) => {
-	if (!game.getCurrentP().ai) play(event);
-	if (game.getCurrentP().ai) play();
-	showResult();
-	showEndScreen();
-});
+board.addEventListener('click', tileClickHandler);
+board.addEventListener('mouseover', hoverHandler);
+board.addEventListener('mouseout', hoverHandler);
+
+function tileClickHandler(event) {
+	if (event.target.tagName === 'LI') {
+		const tile = parseInt(event.target.classList[1]);
+		if (game.board.indexOf(tile) >= 0) {
+			game.makeMove(tile);
+			event.target.classList.add(`${game.getCurrentP().getTileClass()}`);
+		}
+		game.switch();
+		toggleActive();
+		if (game.getCurrentP().ai && !game.finish()) {
+			tiles.forEach(tile => tile.style.pointerEvents = 'none');
+			setTimeout(() => { 
+				getTile(game.getCurrentP().think()).click() 
+				tiles.forEach(tile => tile.style.pointerEvents = 'initial');
+			}, 1000);
+		}
+		showResult();
+		showEndScreen();
+	}
+}
+
+function hoverHandler(e) {
+  if (e.target.tagName === 'LI') {
+	  if (game.board.includes(parseInt(e.target.classList[1]))) {
+	    switch (e.type) {
+	      case 'mouseover':
+	        e.target.style.backgroundImage = `url("${game.getCurrentP().getIcon()}")`;
+	        break;
+	      case 'mouseout':
+	        e.target.style.backgroundImage = '';
+	        break;
+	      default:
+	        break;
+	    }
+	  }
+	}
+}
 
 toggleAI.addEventListener('change', (event) => {
 	if (event.target.checked) {
@@ -56,14 +91,8 @@ startBtn.addEventListener('click', () => {
 	});
 });
 
-function play(e = undefined) {
-	let tile = game.getCurrentP().getTile(e);
-	if (game.board.includes(tile)) {
-		tiles[tile - 1].classList.add(`${game.getCurrentP().getTileClass()}`);
-		game.makeMove(tile);
-		game.switch();
-		toggleActive();
-	}
+function getTile(tileNum) {
+	if (game.board.includes(tileNum)) return tiles[tileNum - 1];
 }
 
 function toggleActive() {
@@ -87,26 +116,14 @@ function showEndScreen() {
 			p2.playFirst = p2.turn;
 			game = new Game([p1, p2]);
 			resetUI();
-			if (game.getCurrentP().ai) play();
-		});
-	}
-}
-
-board.addEventListener('mouseover', hoverHandler);
-board.addEventListener('mouseout', hoverHandler);
-
-function hoverHandler(e) {
-	if (e.target.tagName === 'LI') {
-		let tile = e.target;
-		let tileNum = parseInt(tile.classList[1]);
-		let icon = `url("${game.getCurrentP().getIcon()}")`;
-		if (game.board.includes(tileNum)) {
-			if (tile.style.backgroundImage === icon) {
-				tile.removeAttribute('style');
-			} else {
-				tile.style.backgroundImage = icon;
+			if (game.getCurrentP().ai) {
+				tiles.forEach(tile => tile.style.pointerEvents = 'none');
+				setTimeout(() => { 
+					getTile(game.getCurrentP().think()).click() 
+					tiles.forEach(tile => tile.style.pointerEvents = 'initial');
+				}, 1000);
 			}
-		}
+		});
 	}
 }
 

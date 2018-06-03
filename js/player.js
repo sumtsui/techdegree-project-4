@@ -17,11 +17,7 @@ class Player {
 		return this._playFirst;
 	}
 
-	addTile(index) { this.tiles.push(index); }
-
-	getTile(e) {
-		if (e.target.tagName === 'LI') return parseInt(e.target.classList[1]);
-	}
+	play(index) { this.tiles.push(index); }
 
 	getIcon() {
 		return (this.role === 'player1') ? 'img/o.svg' : 'img/x.svg';

@@ -59,10 +59,6 @@ class AIplayer extends Player {
 		return move;
 	}
 
-	getTile() {
-		return this.think();
-	}
-
 	// return availabe patterns
 	getAvailablePatterns() {
 		let available = num => this.opponent.tiles.indexOf(num) < 0;
