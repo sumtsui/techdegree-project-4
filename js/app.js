@@ -29,9 +29,9 @@ function tileClickHandler(event) {
 		if (game.board.indexOf(tile) >= 0) {
 			game.makeMove(tile);
 			event.target.classList.add(`${game.getCurrentP().getTileClass()}`);
+			game.switch();
+			toggleActive();
 		}
-		game.switch();
-		toggleActive();
 		if (game.getCurrentP().ai && !game.finish()) {
 			tiles.forEach(tile => tile.style.pointerEvents = 'none');
 			setTimeout(() => { 
