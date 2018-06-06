@@ -26,18 +26,14 @@ board.addEventListener('mouseout', hoverHandler);
 function tileClickHandler(event) {
 	if (event.target.tagName === 'LI') {
 		const tile = parseInt(event.target.classList[1]);
-		if (game.board.indexOf(tile) >= 0) {
-			game.makeMove(tile);
+		if (game.board.includes(tile)) {
 			event.target.classList.add(`${game.getCurrentP().getTileClass()}`);
+			game.makeMove(tile);
 			game.switch();
 			toggleActive();
 		}
 		if (game.getCurrentP().ai && !game.finish()) {
-			tiles.forEach(tile => tile.style.pointerEvents = 'none');
-			setTimeout(() => { 
-				getTile(game.getCurrentP().think()).click() 
-				tiles.forEach(tile => tile.style.pointerEvents = 'initial');
-			}, 1000);
+			getTile(game.getCurrentP().think()).click(); 
 		}
 		showResult();
 		showEndScreen();
@@ -117,11 +113,7 @@ function showEndScreen() {
 			game = new Game([p1, p2]);
 			resetUI();
 			if (game.getCurrentP().ai) {
-				tiles.forEach(tile => tile.style.pointerEvents = 'none');
-				setTimeout(() => { 
-					getTile(game.getCurrentP().think()).click() 
-					tiles.forEach(tile => tile.style.pointerEvents = 'initial');
-				}, 1000);
+				getTile(game.getCurrentP().think()).click();
 			}
 		});
 	}
